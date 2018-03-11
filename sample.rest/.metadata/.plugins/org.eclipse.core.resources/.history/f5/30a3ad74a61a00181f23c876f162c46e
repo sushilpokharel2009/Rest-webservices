@@ -1,0 +1,135 @@
+//package com.sashi.service;
+//
+//public class ProductServiceImpTest {
+//	private ProductServiceImp imp = new ProductServiceImp();
+//	
+//	@Test(expected=IllegalArgumentException.class)
+//	public void testSaveProductNull() {
+//		imp.saveProduct(null);
+//	}
+//	
+//	
+//	@Test(expected=IllegalArgumentException.class)
+//	public void testSaveProductNullName() {
+//		ProductVo input = ProductData.createProductVO();
+//		input.setProductName(null);
+//		imp.saveProduct(input);
+//	}
+//	
+//	@Test()
+//	public void testSaveProduct() throws SQLException{
+//		
+//		
+//		ProductVO = input = ProductData.createProductVO();
+//		ProductEntity resultEntity = ProductData.createProductEntity();
+//		
+//		ProductDAO mockDao = mock(ProductDAO.class);
+//		ProductDetailDAO mockDetailDao= mock(ProductDetailDAO.class);
+//		
+//		imp.setDao(mockDao);
+//		imp.setDetailDao(mockDetailDao);
+//		
+//		when(mockDao.createProduct(any(ProductEntity.class))).thenReturn(resultEntity);
+//		
+//		ProductVO output = imp.saveProduct(input);
+//		assertNotNull(output);
+//		assertNotNull(output.getId);
+//		assertEquals(output.getProductName(), input.getProductName());
+//		assertEquals(output.getDescription(), input.getDescription());
+//		
+//		
+//	}
+//	
+//	
+//}
+
+
+
+
+
+package com.sashi.service;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
+import java.sql.SQLException;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import com.shashi.dao.ProductDAO;
+import com.shashi.dao.ProductDetailDAO;
+import com.shashi.entity.ProductEntity;
+import com.shashi.service.exception.ProductException;
+import com.shashi.test.ProductData;
+import com.shashi.vo.ProductVO;
+
+@RunWith(MockitoJUnitRunner.class)
+public class ProductServiceImplTest2 {
+
+	@Mock
+	private ProductDAO mockDAO;
+	@Mock
+	private ProductDetailDAO mockDetailDAO;
+
+	private ProductVO input = null;
+	private ProductEntity resultEntity = null;
+	private ProductServiceImpl impl = new ProductServiceImpl();
+
+	@Before
+	public void setup() {
+		input = ProductData.createProductVO();
+		resultEntity = ProductData.createProductEntity();
+		impl.setDao(mockDAO);
+		impl.setDetailDao(mockDetailDAO);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testSaveProductNull() {
+		impl.saveProduct(null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testSaveProductNullName() {
+		input.setProductName(null);
+		impl.saveProduct(input);
+	}
+
+	@Test
+	public void testSaveProduct() throws SQLException {
+		when(mockDAO.createProduct(any(ProductEntity.class))).thenReturn(resultEntity);
+		ProductVO output = impl.saveProduct(input);
+		validateOutput(output);
+	}
+
+	private void validateOutput(ProductVO output) {
+		assertNotNull(output);
+		assertNotNull(output.getId());
+		assertEquals(output.getProductName(), input.getProductName());
+		assertEquals(output.getDescription(), input.getDescription());
+	}
+
+	@Test
+	public void testSaveProductUpdate() throws SQLException {
+		input.setId(new Long (2000));
+		input.setProductName("ABC Laptop");
+		when(mockDAO.find(any(Long.class))).thenReturn(resultEntity);
+		ProductVO output = impl.saveProduct(input);
+		validateOutput(output);
+	}
+
+	@Test(expected=ProductException.class)
+	public void testSaveProductException() throws SQLException {
+		input.setId(new Long (2000));
+		input.setProductName("ABC Laptop");
+		when(mockDAO.find(any(Long.class))).thenThrow(new SQLException("Data base not found"));
+		impl.saveProduct(input);
+		
+	}
+}
+

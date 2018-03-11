@@ -1,0 +1,5 @@
+package com.sashi.service;
+
+public class ProductDAO {
+
+}
